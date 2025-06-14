@@ -1,39 +1,53 @@
-// controllers/userController.js
-const User = require("../models/userModel");
+const userModel = require("../models/userModel");
+const generateAccountNumber = require("../utils/generateAccountNumber");
 
-exports.getAllUsers = (req, res) => {
-  User.getAll((err, results) => {
+const getUsers = (req, res) => {
+  userModel.getAllUsers((err, result) => {
     if (err) return res.status(500).json({ error: err });
-    res.json(results);
+    res.json(result);
   });
 };
 
-exports.getUserById = (req, res) => {
-  User.getById(req.params.id, (err, results) => {
+const getUser = (req, res) => {
+  const id = req.params.id;
+  userModel.getUserById(id, (err, result) => {
     if (err) return res.status(500).json({ error: err });
-    if (results.length === 0)
+    if (result.length === 0)
       return res.status(404).json({ message: "User not found" });
-    res.json(results[0]);
+    res.json(result[0]);
   });
 };
 
-exports.createUser = (req, res) => {
-  User.create(req.body, (err, result) => {
+const createUser = (req, res) => {
+  const data = req.body;
+  data.account_number = generateAccountNumber();
+  userModel.createUser(data, (err, result) => {
     if (err) return res.status(500).json({ error: err });
-    res.status(201).json({ id: result.insertId, ...req.body });
+    res.status(201).json({ id: result.insertId, ...data });
   });
 };
 
-exports.updateUser = (req, res) => {
-  User.update(req.params.id, req.body, (err) => {
+const updateUser = (req, res) => {
+  const id = req.params.id;
+  const data = req.body;
+  userModel.updateUser(id, data, (err, result) => {
     if (err) return res.status(500).json({ error: err });
     res.json({ message: "User updated" });
   });
 };
 
-exports.deleteUser = (req, res) => {
-  User.delete(req.params.id, (err) => {
+const deleteUser = (req, res) => {
+  const id = req.params.id;
+  userModel.deleteUser(id, (err, result) => {
     if (err) return res.status(500).json({ error: err });
     res.json({ message: "User deleted" });
   });
+};
+
+module.exports = {
+  getUsers,
+  getUser,
+  createUser,
+  updateUser,
+  deleteUser,
 };

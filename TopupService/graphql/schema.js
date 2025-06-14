@@ -2,11 +2,10 @@ const { gql } = require("apollo-server-express");
 
 const typeDefs = gql`
   type Topup {
-    id: Int!
-    user_id: Int!
-    amount: Float!
-    payment_method: String!
-    status: String!
+    id: Int
+    user_id: Int
+    amount: Float
+    payment_method: String
     created_at: String
   }
 
@@ -16,22 +15,9 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    addTopup(
-      user_id: Int!
-      amount: Float!
-      payment_method: String!
-      status: String
-    ): Topup
-
-    updateTopup(
-      id: Int!
-      user_id: Int!
-      amount: Float!
-      payment_method: String!
-      status: String!
-    ): Topup
-
-    deleteTopup(id: Int!): String
+    addTopup(user_id: Int!, amount: Float!, payment_method: String!): Topup
+    updateTopup(id: Int!, amount: Float, payment_method: String): Topup
+    deleteTopup(id: Int!): Boolean
   }
 `;
 

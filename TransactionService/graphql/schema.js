@@ -2,12 +2,12 @@ const { gql } = require("apollo-server-express");
 
 const typeDefs = gql`
   type Transaction {
-    id: Int!
-    sender_id: Int!
-    recipient_id: Int!
-    amount: Float!
+    id: Int
+    sender_id: Int
+    recipient_id: Int
+    amount: Float
     note: String
-    status: String!
+    status: String
     created_at: String
   }
 
@@ -22,19 +22,9 @@ const typeDefs = gql`
       recipient_id: Int!
       amount: Float!
       note: String
-      status: String
     ): Transaction
-
-    updateTransaction(
-      id: Int!
-      sender_id: Int!
-      recipient_id: Int!
-      amount: Float!
-      note: String
-      status: String!
-    ): Transaction
-
-    deleteTransaction(id: Int!): String
+    updateTransaction(id: Int!, note: String): Transaction
+    deleteTransaction(id: Int!): Boolean
   }
 `;
 

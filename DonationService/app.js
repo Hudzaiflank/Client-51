@@ -1,12 +1,25 @@
 const express = require("express");
-const app = express();
+const { ApolloServer } = require("apollo-server-express");
 require("dotenv").config();
-const routes = require("./routes/donationRoutes");
+require("./db");
 
+const typeDefs = require("./graphql/schema");
+const resolvers = require("./graphql/resolvers");
+
+const app = express();
 app.use(express.json());
-app.use("/api", routes);
 
-const PORT = process.env.PORT || 3007;
-app.listen(PORT, () => {
-  console.log(`DonationService running on http://localhost:${PORT}`);
-});
+async function startServer() {
+  const server = new ApolloServer({ typeDefs, resolvers });
+  await server.start();
+  server.applyMiddleware({ app });
+
+  const PORT = process.env.PORT || 3007;
+  app.listen(PORT, () => {
+    console.log(
+      `✅ DonationService GraphQL running at http://localhost:${PORT}${server.graphqlPath}`
+    );
+  });
+}
+
+startServer();

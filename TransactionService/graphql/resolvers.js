@@ -1,23 +1,23 @@
-const db = require("../db");
+const { transactionDB, userDB } = require("../db");
 
 const resolvers = {
   Query: {
-    transactions: () => {
+    transactions: (_, __) => {
       return new Promise((resolve, reject) => {
-        db.query("SELECT * FROM transactions", (err, results) => {
+        transactionDB.query("SELECT * FROM transactions", (err, result) => {
           if (err) reject(err);
-          else resolve(results);
+          else resolve(result);
         });
       });
     },
     transaction: (_, { id }) => {
       return new Promise((resolve, reject) => {
-        db.query(
+        transactionDB.query(
           "SELECT * FROM transactions WHERE id = ?",
           [id],
-          (err, results) => {
+          (err, result) => {
             if (err) reject(err);
-            else resolve(results[0]);
+            else resolve(result[0]);
           }
         );
       });
@@ -25,44 +25,65 @@ const resolvers = {
   },
 
   Mutation: {
-    addTransaction: (_, args) => {
-      const {
-        sender_id,
-        recipient_id,
-        amount,
-        note,
-        status = "success",
-      } = args;
+    addTransaction: (_, { sender_id, recipient_id, amount, note }) => {
       return new Promise((resolve, reject) => {
-        db.query(
-          "INSERT INTO transactions (sender_id, recipient_id, amount, note, status) VALUES (?, ?, ?, ?, ?)",
-          [sender_id, recipient_id, amount, note, status],
+        // Step 1: cek saldo sender
+        userDB.query(
+          "SELECT balance FROM users WHERE id = ?",
+          [sender_id],
           (err, result) => {
-            if (err) reject(err);
-            else {
-              resolve({
-                id: result.insertId,
-                sender_id,
-                recipient_id,
-                amount,
-                note,
-                status,
-              });
+            if (err) return reject(err);
+
+            const saldo = result[0]?.balance || 0;
+
+            const status = saldo >= amount ? "success" : "failed";
+
+            if (status === "success") {
+              userDB.query(
+                "UPDATE users SET balance = balance - ? WHERE id = ?",
+                [amount, sender_id]
+              );
+              userDB.query(
+                "UPDATE users SET balance = balance + ? WHERE id = ?",
+                [amount, recipient_id]
+              );
             }
+
+            transactionDB.query(
+              "INSERT INTO transactions (sender_id, recipient_id, amount, note, status) VALUES (?, ?, ?, ?, ?)",
+              [sender_id, recipient_id, amount, note, status],
+              (err, result) => {
+                if (err) return reject(err);
+                transactionDB.query(
+                  "SELECT * FROM transactions WHERE id = ?",
+                  [result.insertId],
+                  (err, res) => {
+                    if (err) reject(err);
+                    else resolve(res[0]);
+                  }
+                );
+              }
+            );
           }
         );
       });
     },
 
-    updateTransaction: (_, args) => {
-      const { id, sender_id, recipient_id, amount, note, status } = args;
+    updateTransaction: (_, { id, note }) => {
       return new Promise((resolve, reject) => {
-        db.query(
-          "UPDATE transactions SET sender_id = ?, recipient_id = ?, amount = ?, note = ?, status = ? WHERE id = ?",
-          [sender_id, recipient_id, amount, note, status, id],
+        transactionDB.query(
+          "UPDATE transactions SET note = ? WHERE id = ?",
+          [note, id],
           (err) => {
-            if (err) reject(err);
-            else resolve(args);
+            if (err) return reject(err);
+            transactionDB.query(
+              "SELECT * FROM transactions WHERE id = ?",
+              [id],
+              (err, result) => {
+                if (err) reject(err);
+                else resolve(result[0]);
+              }
+            );
           }
         );
       });
@@ -70,10 +91,14 @@ const resolvers = {
 
     deleteTransaction: (_, { id }) => {
       return new Promise((resolve, reject) => {
-        db.query("DELETE FROM transactions WHERE id = ?", [id], (err) => {
-          if (err) reject(err);
-          else resolve("Transaction deleted successfully");
-        });
+        transactionDB.query(
+          "DELETE FROM transactions WHERE id = ?",
+          [id],
+          (err, result) => {
+            if (err) reject(err);
+            else resolve(result.affectedRows > 0);
+          }
+        );
       });
     },
   },

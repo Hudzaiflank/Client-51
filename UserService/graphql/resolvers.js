@@ -1,13 +1,13 @@
 const db = require("../db");
 
+// fungsi generator account_number 10 digit unik
 const generateAccountNumber = () => {
-  const random = Math.floor(10000 + Math.random() * 90000); // 5 digit random
-  return "88" + random.toString(); // misal: 8812345
+  return Math.floor(1000000000 + Math.random() * 9000000000).toString();
 };
 
 const resolvers = {
   Query: {
-    users: (_, __) => {
+    users: () => {
       return new Promise((resolve, reject) => {
         db.query("SELECT * FROM users", (err, results) => {
           if (err) reject(err);
@@ -15,6 +15,7 @@ const resolvers = {
         });
       });
     },
+
     user: (_, { id }) => {
       return new Promise((resolve, reject) => {
         db.query("SELECT * FROM users WHERE id = ?", [id], (err, results) => {
@@ -26,41 +27,47 @@ const resolvers = {
   },
 
   Mutation: {
-    addUser: (_, args) => {
-      const { name, email, password, balance } = args;
-      const account_number = generateAccountNumber();
-
+    addUser: (_, { name, email, password }) => {
       return new Promise((resolve, reject) => {
+        const account_number = generateAccountNumber();
+        const balance = 50000;
+
         db.query(
           "INSERT INTO users (name, email, password, account_number, balance) VALUES (?, ?, ?, ?, ?)",
           [name, email, password, account_number, balance],
           (err, result) => {
             if (err) reject(err);
             else {
-              resolve({
-                id: result.insertId,
-                name,
-                email,
-                password,
-                account_number,
-                balance,
-              });
+              db.query(
+                "SELECT * FROM users WHERE id = ?",
+                [result.insertId],
+                (err2, rows) => {
+                  if (err2) reject(err2);
+                  else resolve(rows[0]);
+                }
+              );
             }
           }
         );
       });
     },
 
-    updateUser: (_, args) => {
-      const { id, name, email, password, account_number, balance } = args;
+    updateUser: (_, { id, name, email, password }) => {
       return new Promise((resolve, reject) => {
         db.query(
-          "UPDATE users SET name = ?, email = ?, password = ?, account_number = ?, balance = ? WHERE id = ?",
-          [name, email, password, account_number, balance, id],
+          "UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?",
+          [name, email, password, id],
           (err) => {
             if (err) reject(err);
             else {
-              resolve(args); // return updated data
+              db.query(
+                "SELECT * FROM users WHERE id = ?",
+                [id],
+                (err2, rows) => {
+                  if (err2) reject(err2);
+                  else resolve(rows[0]);
+                }
+              );
             }
           }
         );
@@ -69,9 +76,9 @@ const resolvers = {
 
     deleteUser: (_, { id }) => {
       return new Promise((resolve, reject) => {
-        db.query("DELETE FROM users WHERE id = ?", [id], (err) => {
-          if (err) reject(err);
-          else resolve("User deleted successfully");
+        db.query("DELETE FROM users WHERE id = ?", [id], (err, result) => {
+          if (err) reject(false);
+          else resolve(result.affectedRows > 0);
         });
       });
     },

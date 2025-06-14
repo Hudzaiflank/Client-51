@@ -1,24 +1,22 @@
 const express = require("express");
-const app = express();
-require("dotenv").config();
-const db = require("./db");
-
 const { ApolloServer } = require("apollo-server-express");
+require("dotenv").config();
 const typeDefs = require("./graphql/schema");
 const resolvers = require("./graphql/resolvers");
+require("./db");
 
-app.use(express.json());
+const app = express();
 
-// Jalankan server GraphQL
 async function startServer() {
   const server = new ApolloServer({ typeDefs, resolvers });
   await server.start();
-  server.applyMiddleware({ app, path: "/graphql" });
+  server.applyMiddleware({ app });
 
   const PORT = process.env.PORT || 3002;
   app.listen(PORT, () => {
-    console.log(`✅ REST (optional) at http://localhost:${PORT}/api`);
-    console.log(`🚀 GraphQL ready at http://localhost:${PORT}/graphql`);
+    console.log(
+      `TopupService GraphQL running at http://localhost:${PORT}${server.graphqlPath}`
+    );
   });
 }
 
