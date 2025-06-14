@@ -1,0 +1,41 @@
+const { gql } = require("apollo-server-express");
+
+const typeDefs = gql`
+  type Transaction {
+    id: Int!
+    sender_id: Int!
+    recipient_id: Int!
+    amount: Float!
+    note: String
+    status: String!
+    created_at: String
+  }
+
+  type Query {
+    transactions: [Transaction]
+    transaction(id: Int!): Transaction
+  }
+
+  type Mutation {
+    addTransaction(
+      sender_id: Int!
+      recipient_id: Int!
+      amount: Float!
+      note: String
+      status: String
+    ): Transaction
+
+    updateTransaction(
+      id: Int!
+      sender_id: Int!
+      recipient_id: Int!
+      amount: Float!
+      note: String
+      status: String!
+    ): Transaction
+
+    deleteTransaction(id: Int!): String
+  }
+`;
+
+module.exports = typeDefs;

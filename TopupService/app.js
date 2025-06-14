@@ -1,12 +1,25 @@
 const express = require("express");
 const app = express();
 require("dotenv").config();
-const routes = require("./routes/topupRoutes");
+const db = require("./db");
+
+const { ApolloServer } = require("apollo-server-express");
+const typeDefs = require("./graphql/schema");
+const resolvers = require("./graphql/resolvers");
 
 app.use(express.json());
-app.use("/api", routes);
 
-const PORT = process.env.PORT || 3002;
-app.listen(PORT, () => {
-  console.log(`TopupService running on http://localhost:${PORT}`);
-});
+// Jalankan server GraphQL
+async function startServer() {
+  const server = new ApolloServer({ typeDefs, resolvers });
+  await server.start();
+  server.applyMiddleware({ app, path: "/graphql" });
+
+  const PORT = process.env.PORT || 3002;
+  app.listen(PORT, () => {
+    console.log(`✅ REST (optional) at http://localhost:${PORT}/api`);
+    console.log(`🚀 GraphQL ready at http://localhost:${PORT}/graphql`);
+  });
+}
+
+startServer();
