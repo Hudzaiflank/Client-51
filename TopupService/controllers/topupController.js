@@ -1,38 +1,62 @@
-const Topup = require("../models/topupModel");
+const topupModel = require("../models/topupModel");
 
-exports.getAllTopups = (req, res) => {
-  Topup.getAll((err, results) => {
+const getTopups = (req, res) => {
+  topupModel.getAllTopups((err, result) => {
     if (err) return res.status(500).json({ error: err });
-    res.json(results);
+    res.json(result);
   });
 };
 
-exports.getTopupById = (req, res) => {
-  Topup.getById(req.params.id, (err, result) => {
+const getTopup = (req, res) => {
+  const id = req.params.id;
+  topupModel.getTopupById(id, (err, result) => {
     if (err) return res.status(500).json({ error: err });
     if (result.length === 0)
-      return res.status(404).json({ message: "Not found" });
+      return res.status(404).json({ message: "Topup not found" });
     res.json(result[0]);
   });
 };
 
-exports.createTopup = (req, res) => {
-  Topup.create(req.body, (err, result) => {
-    if (err) return res.status(500).json({ error: err });
-    res.status(201).json({ id: result.insertId, ...req.body });
-  });
+const addTopup = (req, res) => {
+  const { user_id, amount, payment_method, status } = req.body;
+  if (!user_id || !amount || !payment_method || !status) {
+    return res.status(400).json({ message: "Incomplete data" });
+  }
+
+  topupModel.createTopup(
+    { user_id, amount, payment_method, status },
+    (err, result) => {
+      if (err) return res.status(500).json({ error: err });
+      res.status(201).json({ message: "Topup created", result });
+    }
+  );
 };
 
-exports.updateTopup = (req, res) => {
-  Topup.update(req.params.id, req.body, (err) => {
-    if (err) return res.status(500).json({ error: err });
-    res.json({ message: "Topup updated" });
-  });
+const updateTopup = (req, res) => {
+  const id = req.params.id;
+  const { amount, payment_method, status } = req.body;
+  topupModel.updateTopup(
+    id,
+    { amount, payment_method, status },
+    (err, result) => {
+      if (err) return res.status(500).json({ error: err });
+      res.json({ message: "Topup updated" });
+    }
+  );
 };
 
-exports.deleteTopup = (req, res) => {
-  Topup.delete(req.params.id, (err) => {
+const deleteTopup = (req, res) => {
+  const id = req.params.id;
+  topupModel.deleteTopup(id, (err, result) => {
     if (err) return res.status(500).json({ error: err });
     res.json({ message: "Topup deleted" });
   });
+};
+
+module.exports = {
+  getTopups,
+  getTopup,
+  addTopup,
+  updateTopup,
+  deleteTopup,
 };

@@ -1,14 +1,15 @@
-const Transaction = require("../models/transactionModel");
+const model = require("../models/transactionModel");
 
-exports.getAllTransactions = (req, res) => {
-  Transaction.getAll((err, results) => {
+const getTransactions = (req, res) => {
+  model.getAllTransactions((err, result) => {
     if (err) return res.status(500).json({ error: err });
-    res.json(results);
+    res.json(result);
   });
 };
 
-exports.getTransactionById = (req, res) => {
-  Transaction.getById(req.params.id, (err, result) => {
+const getTransaction = (req, res) => {
+  const id = req.params.id;
+  model.getTransactionById(id, (err, result) => {
     if (err) return res.status(500).json({ error: err });
     if (result.length === 0)
       return res.status(404).json({ message: "Not found" });
@@ -16,23 +17,41 @@ exports.getTransactionById = (req, res) => {
   });
 };
 
-exports.createTransaction = (req, res) => {
-  Transaction.create(req.body, (err, result) => {
+const addTransaction = (req, res) => {
+  const { sender_id, recipient_id, amount, note } = req.body;
+  if (!sender_id || !recipient_id || !amount) {
+    return res.status(400).json({ message: "Data tidak lengkap" });
+  }
+
+  model.createTransaction(
+    { sender_id, recipient_id, amount, note },
+    (err, result) => {
+      if (err) return res.status(500).json({ error: err });
+      res.status(201).json({ message: "Transaction processed", result });
+    }
+  );
+};
+
+const updateTransaction = (req, res) => {
+  const id = req.params.id;
+  model.updateTransaction(id, req.body, (err) => {
     if (err) return res.status(500).json({ error: err });
-    res.status(201).json({ id: result.insertId, ...req.body });
+    res.json({ message: "Transaction note updated" });
   });
 };
 
-exports.updateTransaction = (req, res) => {
-  Transaction.update(req.params.id, req.body, (err) => {
-    if (err) return res.status(500).json({ error: err });
-    res.json({ message: "Transaction updated" });
-  });
-};
-
-exports.deleteTransaction = (req, res) => {
-  Transaction.delete(req.params.id, (err) => {
+const deleteTransaction = (req, res) => {
+  const id = req.params.id;
+  model.deleteTransaction(id, (err) => {
     if (err) return res.status(500).json({ error: err });
     res.json({ message: "Transaction deleted" });
   });
+};
+
+module.exports = {
+  getTransactions,
+  getTransaction,
+  addTransaction,
+  updateTransaction,
+  deleteTransaction,
 };

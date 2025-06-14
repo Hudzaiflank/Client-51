@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 const controller = require("../controllers/donationController");
 
-router.get("/donations", controller.getAllDonations);
-router.get("/donations/:id", controller.getDonationById);
-router.post("/donations", controller.createDonation);
-router.put("/donations/:id", controller.updateDonation);
-router.delete("/donations/:id", controller.deleteDonation);
+router.post("/", controller.createDonation);
+router.get("/", controller.getAllDonations);
+router.get("/:id", controller.getDonationById);
+router.put("/:id", controller.updateDonation);
+router.delete("/:id", controller.deleteDonation);
 
 module.exports = router;

@@ -1,10 +1,11 @@
 const express = require("express");
 const app = express();
 require("dotenv").config();
-const routes = require("./routes/donationRoutes");
+
+const donationRoutes = require("./routes/donationRoutes");
 
 app.use(express.json());
-app.use("/api", routes);
+app.use("/api/donations", donationRoutes);
 
 const PORT = process.env.PORT || 3007;
 app.listen(PORT, () => {

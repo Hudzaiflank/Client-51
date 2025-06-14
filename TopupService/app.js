@@ -1,12 +1,13 @@
 const express = require("express");
-const app = express();
 require("dotenv").config();
-const routes = require("./routes/topupRoutes");
+const app = express();
+const topupRoutes = require("./routes/topupRoutes");
+require("./db"); // connect to DB
 
 app.use(express.json());
-app.use("/api", routes);
+app.use("/api", topupRoutes);
 
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
-  console.log(`TopupService running on http://localhost:${PORT}`);
+  console.log(`TopupService running at http://localhost:${PORT}`);
 });

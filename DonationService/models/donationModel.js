@@ -1,30 +1,43 @@
-const db = require("../db");
+const { donationDB } = require("../db");
 
-const Donation = {
-  getAll: (cb) => db.query("SELECT * FROM donations", cb),
-
-  getById: (id, cb) =>
-    db.query("SELECT * FROM donations WHERE id = ?", [id], cb),
-
-  create: (data, cb) => {
-    const { user_id, donation_target, amount } = data;
-    db.query(
-      "INSERT INTO donations (user_id, donation_target, amount) VALUES (?, ?, ?)",
-      [user_id, donation_target, amount],
-      cb
-    );
-  },
-
-  update: (id, data, cb) => {
-    const { user_id, donation_target, amount } = data;
-    db.query(
-      "UPDATE donations SET user_id = ?, donation_target = ?, amount = ? WHERE id = ?",
-      [user_id, donation_target, amount, id],
-      cb
-    );
-  },
-
-  delete: (id, cb) => db.query("DELETE FROM donations WHERE id = ?", [id], cb),
+const createDonation = (user_id, amount, description, callback) => {
+  const query =
+    "INSERT INTO donations (user_id, amount, description) VALUES (?, ?, ?)";
+  donationDB.query(query, [user_id, amount, description], callback);
 };
 
-module.exports = Donation;
+const getAllDonations = (callback) => {
+  donationDB.query("SELECT * FROM donations", callback);
+};
+
+const getDonationById = (id, callback) => {
+  donationDB.query(
+    "SELECT * FROM donations WHERE donation_id = ?",
+    [id],
+    callback
+  );
+};
+
+const updateDonation = (id, description, callback) => {
+  donationDB.query(
+    "UPDATE donations SET description = ? WHERE donation_id = ?",
+    [description, id],
+    callback
+  );
+};
+
+const deleteDonation = (id, callback) => {
+  donationDB.query(
+    "DELETE FROM donations WHERE donation_id = ?",
+    [id],
+    callback
+  );
+};
+
+module.exports = {
+  createDonation,
+  getAllDonations,
+  getDonationById,
+  updateDonation,
+  deleteDonation,
+};

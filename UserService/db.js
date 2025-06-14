@@ -1,4 +1,3 @@
-// db.js
 const mysql = require("mysql2");
 require("dotenv").config();
 
@@ -10,8 +9,11 @@ const db = mysql.createConnection({
 });
 
 db.connect((err) => {
-  if (err) throw err;
-  console.log("Connected to MySQL database");
+  if (err) {
+    console.error("Database connection failed:", err.stack);
+    return;
+  }
+  console.log("Connected to database");
 });
 
 module.exports = db;

@@ -1,16 +1,28 @@
 const mysql = require("mysql2");
 require("dotenv").config();
 
-const db = mysql.createConnection({
+const tagihanDB = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  database: process.env.TAGIHAN_DB,
 });
 
-db.connect((err) => {
-  if (err) throw err;
-  console.log("Connected to MySQL database");
+const userDB = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.USER_DB,
 });
 
-module.exports = db;
+tagihanDB.connect((err) => {
+  if (err) console.error("Tagihan DB error:", err);
+  else console.log("Connected to Tagihan DB");
+});
+
+userDB.connect((err) => {
+  if (err) console.error("User DB error:", err);
+  else console.log("Connected to User DB");
+});
+
+module.exports = { tagihanDB, userDB };

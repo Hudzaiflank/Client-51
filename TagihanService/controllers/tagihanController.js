@@ -1,74 +1,82 @@
-const Tagihan = require("../models/tagihanModel");
+const model = require("../models/tagihanModel");
 
-exports.getAllTagihans = (req, res) => {
-  Tagihan.getAll((err, result) => {
+const getTagihans = (req, res) => {
+  model.getAllTagihan((err, result) => {
     if (err) return res.status(500).json({ error: err });
     res.json(result);
   });
 };
 
-exports.getTagihanById = (req, res) => {
-  Tagihan.getById(req.params.id, (err, result) => {
+const getTagihan = (req, res) => {
+  model.getTagihanById(req.params.id, (err, result) => {
     if (err) return res.status(500).json({ error: err });
-    if (!result.length) return res.status(404).json({ message: "Not found" });
+    if (result.length === 0)
+      return res.status(404).json({ message: "Not found" });
     res.json(result[0]);
   });
 };
 
-// setiap tagihan akan memiliki nomor VA unik
-exports.createTagihan = (req, res) => {
-  const { user_id, amount, description, status } = req.body;
+const createManual = (req, res) => {
+  const { user_id, amount, description } = req.body;
+  if (!user_id || !amount || !description) {
+    return res.status(400).json({ message: "Data tidak lengkap" });
+  }
 
-  // generate VA number otomatis
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const uniqueSuffix = String(Date.now()).slice(-4); // 4 digit terakhir timestamp
-  const va_number = `8800${user_id}${month}${uniqueSuffix}`;
-
-  const newTagihan = {
-    user_id,
-    va_number,
-    amount,
-    description,
-    status: status || "pending",
-  };
-
-  Tagihan.create(newTagihan, (err, result) => {
+  model.createTagihanManual({ user_id, amount, description }, (err, result) => {
     if (err) return res.status(500).json({ error: err });
-    res.status(201).json({ id: result.insertId, ...newTagihan });
+    res
+      .status(201)
+      .json({ message: "Tagihan manual dibuat dan akan berulang", result });
   });
 };
 
-exports.updateTagihan = (req, res) => {
-  const { user_id, amount, description, status } = req.body;
+const createRecurring = (req, res) => {
+  const { amount, description } = req.body;
 
-  const id = req.params.id;
+  if (!amount || !description) {
+    return res
+      .status(400)
+      .json({ message: "Amount dan description wajib diisi" });
+  }
 
-  Tagihan.getById(id, (err, result) => {
+  model.getAllUsers((err, users) => {
     if (err) return res.status(500).json({ error: err });
-    if (!result.length)
-      return res.status(404).json({ message: "Tagihan not found" });
 
-    const existingTagihan = result[0];
+    let count = 0;
 
-    const updatedTagihan = {
-      user_id,
-      va_number: existingTagihan.va_number, // JANGAN DIUBAH
-      amount,
-      description,
-      status,
-    };
-
-    Tagihan.update(id, updatedTagihan, (err2) => {
-      if (err2) return res.status(500).json({ error: err2 });
-      res.json({ message: "Tagihan updated", data: updatedTagihan });
+    users.forEach((u) => {
+      model.createRecurringTagihanCustom(u.id, amount, description, () => {
+        count++;
+        if (count === users.length) {
+          res.json({
+            message: "Tagihan berhasil dibuat ke semua user",
+            total: count,
+          });
+        }
+      });
     });
   });
 };
 
-exports.deleteTagihan = (req, res) => {
-  Tagihan.delete(req.params.id, (err) => {
+const updateTagihan = (req, res) => {
+  model.updateTagihan(req.params.id, req.body, (err) => {
     if (err) return res.status(500).json({ error: err });
-    res.json({ message: "Tagihan deleted" });
+    res.json({ message: "Tagihan diupdate" });
   });
+};
+
+const deleteTagihan = (req, res) => {
+  model.deleteTagihan(req.params.id, (err) => {
+    if (err) return res.status(500).json({ error: err });
+    res.json({ message: "Tagihan dihapus" });
+  });
+};
+
+module.exports = {
+  getTagihans,
+  getTagihan,
+  createManual,
+  createRecurring,
+  updateTagihan,
+  deleteTagihan,
 };
