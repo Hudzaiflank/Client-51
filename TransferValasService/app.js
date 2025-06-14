@@ -14,7 +14,7 @@ async function startServer() {
   await server.start();
   server.applyMiddleware({ app });
 
-  const PORT = process.env.PORT || 3004;
+  const PORT = process.env.PORT || 4004;
   app.listen(PORT, () => {
     console.log(
       `ValasService GraphQL ready at http://localhost:${PORT}${server.graphqlPath}`

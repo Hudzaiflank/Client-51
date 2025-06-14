@@ -19,7 +19,7 @@ async function startServer() {
   await server.start();
   server.applyMiddleware({ app });
 
-  const PORT = process.env.PORT || 3005;
+  const PORT = process.env.PORT || 4005;
   app.listen(PORT, () => {
     console.log(
       `✅ TagihanService GraphQL ready at http://localhost:${PORT}${server.graphqlPath}`

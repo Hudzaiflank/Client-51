@@ -12,7 +12,7 @@ async function startServer() {
   await server.start();
   server.applyMiddleware({ app });
 
-  const PORT = process.env.PORT || 3002;
+  const PORT = process.env.PORT || 4002;
   app.listen(PORT, () => {
     console.log(
       `TopupService GraphQL running at http://localhost:${PORT}${server.graphqlPath}`

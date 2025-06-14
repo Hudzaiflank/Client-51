@@ -1,0 +1,69 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - "3316:3306"
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  userservice:
+    build: ./UserService
+    container_name: userservice
+    ports:
+      - "4001:4001"
+    depends_on:
+      - db
+
+  topupservice:
+    build: ./TopupService
+    container_name: topupservice
+    ports:
+      - "4002:4002"
+    depends_on:
+      - db
+
+  transactionservice:
+    build: ./TransactionService
+    container_name: transactionservice
+    ports:
+      - "4003:4003"
+    depends_on:
+      - db
+
+  valasservice:
+    build: ./TransferValasService
+    container_name: valasservice
+    ports:
+      - "4004:4004"
+    depends_on:
+      - db
+
+  billservice:
+    build: ./TagihanService
+    container_name: billservice
+    ports:
+      - "4005:4005"
+    depends_on:
+      - db
+
+  paymentservice:
+    build: ./PaymentService
+    container_name: paymentservice
+    ports:
+      - "4006:4006"
+    depends_on:
+      - db
+
+  donationservice:
+    build: ./DonationService
+    container_name: donationservice
+    ports:
+      - "4007:4007"
+    depends_on:
+      - db

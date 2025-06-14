@@ -11,7 +11,7 @@ async function startServer() {
   await server.start();
   server.applyMiddleware({ app });
 
-  const PORT = process.env.PORT || 3001;
+  const PORT = process.env.PORT || 4001;
   app.listen(PORT, () => {
     console.log(
       `🚀 GraphQL running at http://localhost:${PORT}${server.graphqlPath}`

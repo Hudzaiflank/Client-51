@@ -2,132 +2,97 @@ const { paymentDB, userDB, tagihanDB } = require("../db");
 
 const resolvers = {
   Query: {
-    payments: () => {
-      return new Promise((resolve, reject) => {
-        paymentDB.query("SELECT * FROM payments", (err, result) => {
-          if (err) reject(err);
-          else resolve(result);
-        });
-      });
+    payments: async () => {
+      const [rows] = await paymentDB.query("SELECT * FROM payments");
+      return rows;
     },
 
-    payment: (_, { id }) => {
-      return new Promise((resolve, reject) => {
-        paymentDB.query(
-          "SELECT * FROM payments WHERE id = ?",
-          [id],
-          (err, result) => {
-            if (err) reject(err);
-            else resolve(result[0]);
-          }
-        );
-      });
+    payment: async (_, { id }) => {
+      const [rows] = await paymentDB.query(
+        "SELECT * FROM payments WHERE id = ?",
+        [id]
+      );
+      return rows[0];
     },
   },
 
   Mutation: {
-    createPayment: (_, { user_id, va_number }) => {
-      return new Promise((resolve, reject) => {
-        tagihanDB.query(
-          'SELECT * FROM tagihans WHERE va_number = ? AND status = "pending"',
-          [va_number],
-          (err, tagihans) => {
-            if (err) return reject(err);
-            if (tagihans.length === 0) {
-              return resolve({
-                result: "Tagihan tidak ditemukan atau sudah dibayar",
-                status: "failed",
-              });
-            }
+    createPayment: async (_, { user_id, va_number }) => {
+      const [tagihans] = await tagihanDB.query(
+        'SELECT * FROM tagihans WHERE va_number = ? AND status = "pending"',
+        [va_number]
+      );
 
-            const tagihan = tagihans[0];
+      if (tagihans.length === 0) {
+        return {
+          result: "Tagihan tidak ditemukan atau sudah dibayar",
+          status: "failed",
+        };
+      }
 
-            userDB.query(
-              "SELECT balance FROM users WHERE id = ?",
-              [user_id],
-              (err2, users) => {
-                if (err2) return reject(err2);
-                const user = users[0];
+      const tagihan = tagihans[0];
+      const [users] = await userDB.query(
+        "SELECT balance FROM users WHERE id = ?",
+        [user_id]
+      );
+      const user = users[0];
 
-                if (!user || user.balance < tagihan.amount) {
-                  const fail = `INSERT INTO payments (user_id, va_number, amount, description, status) VALUES (?, ?, ?, ?, 'failed')`;
-                  return paymentDB.query(
-                    fail,
-                    [user_id, va_number, tagihan.amount, tagihan.description],
-                    (e) => {
-                      if (e) return reject(e);
-                      resolve({
-                        result: "Saldo tidak cukup",
-                        status: "failed",
-                      });
-                    }
-                  );
-                }
-
-                // Kurangi saldo
-                userDB.query(
-                  "UPDATE users SET balance = balance - ? WHERE id = ?",
-                  [tagihan.amount, user_id]
-                );
-
-                // Update tagihan jadi paid
-                tagihanDB.query(
-                  'UPDATE tagihans SET status = "paid" WHERE va_number = ?',
-                  [va_number]
-                );
-
-                // Simpan payment success
-                const query = `INSERT INTO payments (user_id, va_number, amount, description, status) VALUES (?, ?, ?, ?, 'success')`;
-                paymentDB.query(
-                  query,
-                  [user_id, va_number, tagihan.amount, tagihan.description],
-                  (err, result) => {
-                    if (err) reject(err);
-                    else
-                      resolve({
-                        result: "Pembayaran berhasil",
-                        status: "success",
-                      });
-                  }
-                );
-              }
-            );
-          }
+      if (!user || user.balance < tagihan.amount) {
+        await paymentDB.query(
+          `INSERT INTO payments (user_id, va_number, amount, description, status) 
+           VALUES (?, ?, ?, ?, 'failed')`,
+          [user_id, va_number, tagihan.amount, tagihan.description]
         );
-      });
+
+        return {
+          result: "Saldo tidak cukup",
+          status: "failed",
+        };
+      }
+
+      // Update saldo user
+      await userDB.query(
+        "UPDATE users SET balance = balance - ? WHERE id = ?",
+        [tagihan.amount, user_id]
+      );
+
+      // Update status tagihan
+      await tagihanDB.query(
+        'UPDATE tagihans SET status = "paid" WHERE va_number = ?',
+        [va_number]
+      );
+
+      // Simpan data payment
+      await paymentDB.query(
+        `INSERT INTO payments (user_id, va_number, amount, description, status) 
+         VALUES (?, ?, ?, ?, 'success')`,
+        [user_id, va_number, tagihan.amount, tagihan.description]
+      );
+
+      return {
+        result: "Pembayaran berhasil",
+        status: "success",
+      };
     },
 
-    updatePayment: (_, { id, description }) => {
-      return new Promise((resolve, reject) => {
-        paymentDB.query(
-          "UPDATE payments SET description = ? WHERE id = ?",
-          [description, id],
-          (err) => {
-            if (err) return reject(err);
-            paymentDB.query(
-              "SELECT * FROM payments WHERE id = ?",
-              [id],
-              (err, result) => {
-                if (err) reject(err);
-                else resolve(result[0]);
-              }
-            );
-          }
-        );
-      });
+    updatePayment: async (_, { id, description }) => {
+      await paymentDB.query(
+        "UPDATE payments SET description = ? WHERE id = ?",
+        [description, id]
+      );
+      const [rows] = await paymentDB.query(
+        "SELECT * FROM payments WHERE id = ?",
+        [id]
+      );
+      return rows[0];
     },
 
-    deletePayment: (_, { id }) => {
-      return new Promise((resolve, reject) => {
-        paymentDB.query(
-          "DELETE FROM payments WHERE id = ?",
-          [id],
-          (err, result) => {
-            if (err) reject(err);
-            else resolve(result.affectedRows > 0);
-          }
-        );
-      });
+    deletePayment: async (_, { id }) => {
+      const [result] = await paymentDB.query(
+        "DELETE FROM payments WHERE id = ?",
+        [id]
+      );
+      return result.affectedRows > 0;
     },
   },
 };

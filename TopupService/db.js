@@ -1,28 +1,24 @@
 require("dotenv").config();
-const mysql = require("mysql2");
+const mysql = require("mysql2/promise");
 
-const topupDB = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
+const topupDB = mysql.createPool({
+  host: process.env.DB_HOST || "db",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
   database: process.env.TOPUP_DB,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
-const userDB = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
+const userDB = mysql.createPool({
+  host: process.env.DB_HOST || "db",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
   database: process.env.USER_DB,
-});
-
-topupDB.connect((err) => {
-  if (err) console.error("Topup DB Error:", err);
-  else console.log("Connected to Topup DB");
-});
-
-userDB.connect((err) => {
-  if (err) console.error("User DB Error:", err);
-  else console.log("Connected to User DB");
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
 module.exports = { topupDB, userDB };
