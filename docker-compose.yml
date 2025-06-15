@@ -2,18 +2,16 @@ version: "3.8"
 
 services:
   db:
-    image: mysql:8.0
+    image: hudzaiflank/custom-mysql:withsql
     container_name: mysql-db
     restart: always
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     ports:
       - "3316:3306"
-    volumes:
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   userservice:
-    build: ./UserService
+    image: hudzaiflank/test-3:userservice
     container_name: userservice
     ports:
       - "4001:4001"
@@ -21,7 +19,7 @@ services:
       - db
 
   topupservice:
-    build: ./TopupService
+    image: hudzaiflank/test-3:topupservice
     container_name: topupservice
     ports:
       - "4002:4002"
@@ -29,7 +27,7 @@ services:
       - db
 
   transactionservice:
-    build: ./TransactionService
+    image: hudzaiflank/test-3:transactionservice
     container_name: transactionservice
     ports:
       - "4003:4003"
@@ -37,7 +35,7 @@ services:
       - db
 
   valasservice:
-    build: ./TransferValasService
+    image: hudzaiflank/test-3:valasservice
     container_name: valasservice
     ports:
       - "4004:4004"
@@ -45,7 +43,7 @@ services:
       - db
 
   billservice:
-    build: ./TagihanService
+    image: hudzaiflank/test-3:tagihanservice
     container_name: billservice
     ports:
       - "4005:4005"
@@ -53,7 +51,7 @@ services:
       - db
 
   paymentservice:
-    build: ./PaymentService
+    image: hudzaiflank/test-3:paymentservice
     container_name: paymentservice
     ports:
       - "4006:4006"
@@ -61,7 +59,7 @@ services:
       - db
 
   donationservice:
-    build: ./DonationService
+    image: hudzaiflank/test-3:donationservice
     container_name: donationservice
     ports:
       - "4007:4007"

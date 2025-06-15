@@ -2,7 +2,7 @@ require("dotenv").config();
 const mysql = require("mysql2/promise");
 
 const topupDB = mysql.createPool({
-  host: process.env.DB_HOST || "db",
+  host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "",
   database: process.env.TOPUP_DB,
@@ -12,7 +12,7 @@ const topupDB = mysql.createPool({
 });
 
 const userDB = mysql.createPool({
-  host: process.env.DB_HOST || "db",
+  host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "",
   database: process.env.USER_DB,

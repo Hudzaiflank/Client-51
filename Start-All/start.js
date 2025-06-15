@@ -4,13 +4,13 @@ const path = require("path");
 const basePath = path.join(__dirname, "..");
 
 const services = [
-  { name: "UserService", port: 3001 },
-  { name: "TopupService", port: 3002 },
-  { name: "TransactionService", port: 3003 },
-  { name: "TransferValasService", port: 3004 },
-  { name: "TagihanService", port: 3005 },
-  { name: "PaymentService", port: 3006 },
-  { name: "DonationService", port: 3007 },
+  { name: "UserService", port: 4001 },
+  { name: "TopupService", port: 4002 },
+  { name: "TransactionService", port: 4003 },
+  { name: "TransferValasService", port: 4004 },
+  { name: "TagihanService", port: 4005 },
+  { name: "PaymentService", port: 4006 },
+  { name: "DonationService", port: 4007 },
 ];
 
 services.forEach(({ name, port }) => {

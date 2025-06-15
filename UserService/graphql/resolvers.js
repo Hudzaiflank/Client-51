@@ -1,6 +1,6 @@
-const db = require("../db").promise(); // gunakan promise untuk async/await
+const db = require("../db").promise();
 
-// Fungsi generator nomor akun 10 digit unik
+// Generator 10 digit account number
 const generateAccountNumber = () => {
   return Math.floor(1000000000 + Math.random() * 9000000000).toString();
 };
@@ -15,6 +15,14 @@ const resolvers = {
     user: async (_, { id }) => {
       const [rows] = await db.query("SELECT * FROM users WHERE id = ?", [id]);
       return rows[0];
+    },
+
+    loginUser: async (_, { email, password }) => {
+      const [rows] = await db.query(
+        "SELECT * FROM users WHERE email = ? AND password = ?",
+        [email, password]
+      );
+      return rows[0] || null;
     },
   },
 
