@@ -18,8 +18,8 @@ const typeDefs = gql`
 
   type Mutation {
     addTransaction(
-      sender_id: Int!
-      recipient_id: Int!
+      sender_account: String!
+      recipient_account: String!
       amount: Float!
       note: String
     ): Transaction

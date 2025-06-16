@@ -7,6 +7,7 @@ import {
   addValasTransfer,
 } from "../../graphql/valasService";
 import Swal from "sweetalert2";
+import dayjs from "dayjs";
 
 export default function ValasPage() {
   const user = getUser();
@@ -151,7 +152,7 @@ export default function ValasPage() {
                   <td className="p-2">Rp {v.amount_idr}</td>
                   <td className="p-2">{v.status}</td>
                   <td className="p-2">
-                    {new Date(v.created_at).toLocaleString()}
+                    {dayjs(Number(v.created_at)).format("DD MMMM YYYY ")}
                   </td>
                 </tr>
               ))}

@@ -17,13 +17,34 @@ const resolvers = {
   },
 
   Mutation: {
-    addTransaction: async (_, { sender_id, recipient_id, amount, note }) => {
+    addTransaction: async (
+      _,
+      { sender_account, recipient_account, amount, note }
+    ) => {
+      // Cari ID pengirim berdasarkan nomor rekening
       const [senderRows] = await userDB.query(
-        "SELECT balance FROM users WHERE id = ?",
-        [sender_id]
+        "SELECT id, balance FROM users WHERE account_number = ?",
+        [sender_account]
       );
-      const saldo = senderRows[0]?.balance || 0;
 
+      if (!senderRows[0]) {
+        throw new Error("Akun pengirim tidak ditemukan");
+      }
+
+      const sender_id = senderRows[0].id;
+      const saldo = senderRows[0].balance;
+
+      // Cari ID penerima berdasarkan nomor rekening
+      const [recipientRows] = await userDB.query(
+        "SELECT id FROM users WHERE account_number = ?",
+        [recipient_account]
+      );
+
+      if (!recipientRows[0]) {
+        throw new Error("Akun penerima tidak ditemukan");
+      }
+
+      const recipient_id = recipientRows[0].id;
       const status = saldo >= amount ? "success" : "failed";
 
       if (status === "success") {

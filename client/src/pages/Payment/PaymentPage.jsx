@@ -4,6 +4,7 @@ import Layout from "../../components/Layouts/Layout";
 import { getUser } from "../../utils/auth";
 import { fetchPayments, createPayment } from "../../graphql/paymentService";
 import Swal from "sweetalert2";
+import dayjs from "dayjs";
 
 export default function PaymentPage() {
   const user = getUser();
@@ -90,7 +91,7 @@ export default function PaymentPage() {
                   <td className="p-2">Rp {p.amount}</td>
                   <td className="p-2">{p.status}</td>
                   <td className="p-2">
-                    {new Date(p.created_at).toLocaleString()}
+                    {dayjs(Number(p.created_at)).format("DD MMMM YYYY ")}
                   </td>
                 </tr>
               ))}

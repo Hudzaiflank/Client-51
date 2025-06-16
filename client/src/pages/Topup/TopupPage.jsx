@@ -4,6 +4,7 @@ import Layout from "../../components/Layouts/Layout";
 import { getUser } from "../../utils/auth";
 import { fetchTopups, createTopup } from "../../graphql/topupService";
 import Swal from "sweetalert2";
+import dayjs from "dayjs";
 
 export default function TopupPage() {
   const [topups, setTopups] = useState([]);
@@ -102,7 +103,7 @@ export default function TopupPage() {
                   <td className="p-2">Rp {t.amount}</td>
                   <td className="p-2">{t.payment_method}</td>
                   <td className="p-2">
-                    {new Date(t.created_at).toLocaleString()}
+                    {dayjs(Number(t.created_at)).format("DD MMMM YYYY ")}
                   </td>
                 </tr>
               ))}

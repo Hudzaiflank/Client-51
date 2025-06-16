@@ -1,7 +1,7 @@
 // src/pages/Auth/Login.jsx
 import { useState } from "react";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { setUser } from "../../utils/auth";
 
 export default function Login() {
@@ -68,6 +68,12 @@ export default function Login() {
         >
           Login
         </button>
+        <p className="mt-4 text-center text-gray-600">
+          Belum punya akun?{" "}
+          <Link to="/auth/register" className="text-green-600 hover:underline">
+            Daftar di sini
+          </Link>
+        </p>
       </div>
     </div>
   );

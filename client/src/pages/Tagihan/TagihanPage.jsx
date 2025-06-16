@@ -7,6 +7,7 @@ import {
   createTagihanManual,
 } from "../../graphql/tagihanService";
 import Swal from "sweetalert2";
+import dayjs from "dayjs";
 
 export default function TagihanPage() {
   const user = getUser();
@@ -102,7 +103,7 @@ export default function TagihanPage() {
                   <td className="p-2">{t.status}</td>
                   <td className="p-2">{t.description}</td>
                   <td className="p-2">
-                    {new Date(t.created_at).toLocaleString()}
+                    {dayjs(Number(t.created_at)).format("DD MMMM YYYY ")}
                   </td>
                 </tr>
               ))}

@@ -18,15 +18,15 @@ const getTransaction = (req, res) => {
 };
 
 const addTransaction = (req, res) => {
-  const { sender_id, recipient_id, amount, note } = req.body;
-  if (!sender_id || !recipient_id || !amount) {
+  const { sender_account, recipient_account, amount, note } = req.body;
+  if (!sender_account || !recipient_account || !amount) {
     return res.status(400).json({ message: "Data tidak lengkap" });
   }
 
   model.createTransaction(
-    { sender_id, recipient_id, amount, note },
+    { sender_account, recipient_account, amount, note },
     (err, result) => {
-      if (err) return res.status(500).json({ error: err });
+      if (err) return res.status(500).json({ error: err.message });
       res.status(201).json({ message: "Transaction processed", result });
     }
   );

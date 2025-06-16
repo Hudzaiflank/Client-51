@@ -18,7 +18,7 @@ export default function Sidebar() {
   return (
     <div className="h-screen w-64 bg-gray-900 text-white flex flex-col shadow-lg">
       <div className="text-2xl font-bold p-6 border-b border-gray-700">
-        project-b
+        Gogowallet
       </div>
       <nav className="flex-1 p-4 space-y-2">
         {navItems.map((item) => (

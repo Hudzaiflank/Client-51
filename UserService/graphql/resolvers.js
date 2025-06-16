@@ -29,7 +29,7 @@ const resolvers = {
   Mutation: {
     addUser: async (_, { name, email, password }) => {
       const account_number = generateAccountNumber();
-      const balance = 50000;
+      const balance = 0; // Default balance for new users
 
       const [result] = await db.query(
         "INSERT INTO users (name, email, password, account_number, balance) VALUES (?, ?, ?, ?, ?)",

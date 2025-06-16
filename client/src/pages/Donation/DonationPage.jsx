@@ -4,6 +4,7 @@ import Layout from "../../components/Layouts/Layout";
 import { getUser } from "../../utils/auth";
 import { fetchDonations, createDonation } from "../../graphql/donationService";
 import Swal from "sweetalert2";
+import dayjs from "dayjs";
 
 export default function DonationPage() {
   const user = getUser();
@@ -95,7 +96,7 @@ export default function DonationPage() {
                   <td className="p-2">Rp {d.amount}</td>
                   <td className="p-2">{d.description}</td>
                   <td className="p-2">
-                    {new Date(d.created_at).toLocaleString()}
+                    {dayjs(Number(d.created_at)).format("DD MMMM YYYY ")}
                   </td>
                 </tr>
               ))}

@@ -24,10 +24,15 @@ export async function fetchTransactions() {
   return data.transactions;
 }
 
-export async function addTransaction(sender_id, recipient_id, amount, note) {
+export async function addTransaction(
+  sender_account,
+  recipient_account,
+  amount,
+  note
+) {
   const mutation = `
     mutation {
-      addTransaction(sender_id: ${sender_id}, recipient_id: ${recipient_id}, amount: ${amount}, note: "${note}") {
+      addTransaction(sender_account: "${sender_account}", recipient_account: "${recipient_account}", amount: ${amount}, note: "${note}") {
         id
         status
         note

@@ -1,7 +1,7 @@
 // src/pages/Auth/Register.jsx
 import { useState } from "react";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -73,6 +73,12 @@ export default function Register() {
         >
           Register
         </button>
+        <p className="mt-4 text-center text-gray-600">
+          Sudah punya akun?{" "}
+          <Link to="/auth/login" className="text-blue-600 hover:underline">
+            Login di sini
+          </Link>
+        </p>
       </div>
     </div>
   );

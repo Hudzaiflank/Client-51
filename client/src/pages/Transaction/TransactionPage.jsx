@@ -7,9 +7,10 @@ import {
   addTransaction,
 } from "../../graphql/transactionService";
 import Swal from "sweetalert2";
+import dayjs from "dayjs";
 
 export default function TransactionPage() {
-  const [recipientId, setRecipientId] = useState("");
+  const [recipientAccount, setRecipientAccount] = useState("");
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [transactions, setTransactions] = useState([]);
@@ -34,13 +35,13 @@ export default function TransactionPage() {
     e.preventDefault();
     try {
       await addTransaction(
-        user.id,
-        parseInt(recipientId),
+        user.account_number,
+        recipientAccount,
         parseInt(amount),
         note
       );
       Swal.fire("Sukses", "Transaksi berhasil", "success");
-      setRecipientId("");
+      setRecipientAccount("");
       setAmount("");
       setNote("");
       loadTransactions();
@@ -58,17 +59,20 @@ export default function TransactionPage() {
         className="bg-white p-6 rounded shadow mb-8 space-y-4"
       >
         <div>
-          <label className="block font-semibold mb-1">Recipient ID</label>
+          <label className="block font-semibold mb-1">
+            Nomor Rekening Penerima
+          </label>
           <input
-            type="number"
-            value={recipientId}
-            onChange={(e) => setRecipientId(e.target.value)}
+            type="text"
+            value={recipientAccount}
+            onChange={(e) => setRecipientAccount(e.target.value)}
             className="w-full border px-4 py-2 rounded"
+            placeholder="Masukkan nomor rekening penerima"
             required
           />
         </div>
         <div>
-          <label className="block font-semibold mb-1">Amount</label>
+          <label className="block font-semibold mb-1">Jumlah</label>
           <input
             type="number"
             value={amount}
@@ -78,7 +82,7 @@ export default function TransactionPage() {
           />
         </div>
         <div>
-          <label className="block font-semibold mb-1">Note</label>
+          <label className="block font-semibold mb-1">Catatan</label>
           <input
             type="text"
             value={note}
@@ -105,7 +109,7 @@ export default function TransactionPage() {
                 <th className="p-2">ID</th>
                 <th className="p-2">To</th>
                 <th className="p-2">Jumlah</th>
-                <th className="p-2">Note</th>
+                <th className="p-2">Catatan</th>
                 <th className="p-2">Status</th>
                 <th className="p-2">Waktu</th>
               </tr>
@@ -119,7 +123,7 @@ export default function TransactionPage() {
                   <td className="p-2">{tx.note}</td>
                   <td className="p-2">{tx.status}</td>
                   <td className="p-2">
-                    {new Date(tx.created_at).toLocaleString()}
+                    {dayjs(Number(tx.created_at)).format("DD MMMM YYYY ")}
                   </td>
                 </tr>
               ))}
