@@ -16,9 +16,18 @@ export default function ValasPage() {
     account_number: "",
     recipient_bank: "",
     currency: "USD",
-    exchange_rate: "",
     amount_idr: "",
   });
+
+  // Definisikan exchange rate untuk masing-masing mata uang
+  const exchangeRates = {
+    USD: 15500,
+    SGD: 11700,
+    JPY: 110,
+  };
+
+  // Exchange rate otomatis berdasarkan currency yang dipilih
+  const currentExchangeRate = exchangeRates[form.currency] || 15500;
 
   const loadData = async () => {
     try {
@@ -43,18 +52,21 @@ export default function ValasPage() {
     const payload = {
       ...form,
       user_id: user.id,
-      exchange_rate: parseFloat(form.exchange_rate),
+      exchange_rate: currentExchangeRate,
       amount_idr: parseInt(form.amount_idr),
     };
 
     try {
-      await addValasTransfer(payload);
-      Swal.fire("Sukses", "Transfer valas berhasil", "success");
+      const result = await addValasTransfer(payload);
+      if (result.status === "success") {
+        Swal.fire("Sukses", "Transfer valas berhasil", "success");
+      } else {
+        Swal.fire("Gagal", "Saldo tidak mencukupi", "error");
+      }
       setForm({
         account_number: "",
         recipient_bank: "",
         currency: "USD",
-        exchange_rate: "",
         amount_idr: "",
       });
       loadData();
@@ -99,15 +111,9 @@ export default function ValasPage() {
           <option value="SGD">SGD</option>
           <option value="JPY">JPY</option>
         </select>
-        <input
-          type="number"
-          name="exchange_rate"
-          placeholder="Exchange Rate"
-          value={form.exchange_rate}
-          onChange={handleChange}
-          className="w-full border px-4 py-2 rounded"
-          required
-        />
+        <div className="w-full border px-4 py-2 rounded bg-gray-100 text-gray-700">
+          Exchange Rate: {currentExchangeRate} IDR/{form.currency}
+        </div>
         <input
           type="number"
           name="amount_idr"
@@ -117,6 +123,12 @@ export default function ValasPage() {
           className="w-full border px-4 py-2 rounded"
           required
         />
+        {form.amount_idr && (
+          <div className="w-full border px-4 py-2 rounded bg-blue-50 text-blue-700">
+            Jumlah dalam {form.currency}:{" "}
+            {(form.amount_idr / currentExchangeRate).toFixed(2)} {form.currency}
+          </div>
+        )}
         <button
           type="submit"
           className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
