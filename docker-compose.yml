@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   db:
-    image: hudzaiflank/custom-mysql:withsql
+    image: dinarkhansas/uas-eai-kelompok6:mysql-withsql
     container_name: mysql-db
     restart: always
     environment:
@@ -11,7 +11,7 @@ services:
       - "3316:3306"
 
   userservice:
-    image: hudzaiflank/test-3:userservice
+    image: dinarkhansas/uas-eai-kelompok6:userservice
     container_name: userservice
     ports:
       - "4001:4001"
@@ -19,7 +19,7 @@ services:
       - db
 
   topupservice:
-    image: hudzaiflank/test-3:topupservice
+    image: dinarkhansas/uas-eai-kelompok6:topupservice
     container_name: topupservice
     ports:
       - "4002:4002"
@@ -27,7 +27,7 @@ services:
       - db
 
   transactionservice:
-    image: hudzaiflank/test-3:transactionservice
+    image: dinarkhansas/uas-eai-kelompok6:transactionservice
     container_name: transactionservice
     ports:
       - "4003:4003"
@@ -35,7 +35,7 @@ services:
       - db
 
   valasservice:
-    image: hudzaiflank/test-3:valasservice
+    image: dinarkhansas/uas-eai-kelompok6:valasservice
     container_name: valasservice
     ports:
       - "4004:4004"
@@ -43,7 +43,7 @@ services:
       - db
 
   billservice:
-    image: hudzaiflank/test-3:tagihanservice
+    image: dinarkhansas/uas-eai-kelompok6:tagihanservice
     container_name: billservice
     ports:
       - "4005:4005"
@@ -51,7 +51,7 @@ services:
       - db
 
   paymentservice:
-    image: hudzaiflank/test-3:paymentservice
+    image: dinarkhansas/uas-eai-kelompok6:paymentservice
     container_name: paymentservice
     ports:
       - "4006:4006"
@@ -59,7 +59,7 @@ services:
       - db
 
   donationservice:
-    image: hudzaiflank/test-3:donationservice
+    image: dinarkhansas/uas-eai-kelompok6:donationservice
     container_name: donationservice
     ports:
       - "4007:4007"
